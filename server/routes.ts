@@ -128,21 +128,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Check if word was already used as a daily word (not allowed as guess)
-      if (isValid) {
-        try {
-          const usedDailyWords = await loadUsedWords();
-          if (usedDailyWords.includes(upperWord)) {
-            return res.json({ 
-              valid: false,
-              message: "This word was already used as a daily word"
-            });
-          }
-        } catch (error) {
-          console.log('Could not check used daily words');
-        }
-      }
-      
       res.json({ 
         valid: isValid,
         message: isValid ? "Valid word" : "Not a valid word"
