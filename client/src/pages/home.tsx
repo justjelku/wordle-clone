@@ -47,16 +47,23 @@ export default function Home() {
 
   // Check for existing user on load
   useEffect(() => {
+    // Clear localStorage for testing - remove this in production
+    localStorage.removeItem('wordleUser');
+    
     const savedUser = localStorage.getItem('wordleUser');
+    console.log('Checking for saved user:', savedUser);
     if (savedUser) {
       try {
         const user = JSON.parse(savedUser);
+        console.log('Found saved user:', user);
         setCurrentUser(user);
       } catch (error) {
+        console.log('Error parsing saved user, clearing localStorage');
         localStorage.removeItem('wordleUser');
         setShowUserSetup(true);
       }
     } else {
+      console.log('No saved user found, showing user setup modal');
       setShowUserSetup(true);
     }
   }, []);
