@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
+import { GuessPatternsDisplay } from "./guess-patterns-display";
 
 interface GameCompleteModalProps {
   isOpen: boolean;
@@ -10,6 +11,8 @@ interface GameCompleteModalProps {
   guessCount: number;
   onClose: () => void;
   onPlayAgain: () => void;
+  currentUser?: { id: string; username: string } | null;
+  userGuesses?: string[];
 }
 
 // Calculate percentage score based on guess count
@@ -29,7 +32,9 @@ export function GameCompleteModal({
   category,
   guessCount,
   onClose,
-  onPlayAgain
+  onPlayAgain,
+  currentUser,
+  userGuesses = []
 }: GameCompleteModalProps) {
   
   const handleShare = async () => {
@@ -52,9 +57,11 @@ export function GameCompleteModal({
     }
   };
 
+  const today = new Date().toISOString().split('T')[0];
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md" data-testid="game-complete-modal">
+      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto" data-testid="game-complete-modal">
         <DialogHeader className="text-center">
           <div className="mb-4">
             <div className="text-6xl mb-2">
@@ -100,6 +107,21 @@ export function GameCompleteModal({
             <div className="text-sm text-orange-600">
               Come back tomorrow for a new word from the <strong>{category}</strong> category.
             </div>
+          </div>
+        )}
+        
+        {/* Show guess patterns for completed games */}
+        {(gameStatus === 'won' || gameStatus === 'lost') && (
+          <div className="mb-6">
+            <GuessPatternsDisplay
+              targetWord={word}
+              date={today}
+              currentUserPattern={gameStatus === 'won' && currentUser && userGuesses.length > 0 ? {
+                username: currentUser.username,
+                guesses: userGuesses,
+                guessCount: guessCount
+              } : undefined}
+            />
           </div>
         )}
         

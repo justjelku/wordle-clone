@@ -218,6 +218,8 @@ export default function Home() {
           guessCount={gameState.guesses.length}
           onClose={closeModal}
           onPlayAgain={resetGame}
+          currentUser={currentUser}
+          userGuesses={gameState.guesses}
         />
       )}
       

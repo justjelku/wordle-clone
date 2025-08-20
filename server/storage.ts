@@ -19,6 +19,7 @@ export interface IStorage {
   getGameStatsByDate(date: string): Promise<GameStats[]>;
   getUserStats(userId: string): Promise<UserStats>;
   getLeaderboard(limit?: number): Promise<LeaderboardEntry[]>;
+  getTodayTopPatterns(date: string): Promise<Array<{ username: string; guesses: string[]; guessCount: number; }>>;
 }
 
 export class MemStorage implements IStorage {
@@ -185,6 +186,31 @@ export class MemStorage implements IStorage {
     
     return leaderboard;
   }
+
+  async getTodayTopPatterns(date: string): Promise<Array<{ username: string; guesses: string[]; guessCount: number; }>> {
+    // Get all games for today
+    const todayGames = this.gameStats.filter(game => game.date === date && game.completed === 'won');
+    
+    // Sort by guess count (ascending) and take top 3
+    const topGames = todayGames
+      .sort((a, b) => a.guessCount - b.guessCount)
+      .slice(0, 3);
+    
+    // Get usernames for the top games
+    const patterns = [];
+    for (const game of topGames) {
+      const user = this.users.find(u => u.id === game.userId);
+      if (user) {
+        patterns.push({
+          username: user.username,
+          guesses: game.guesses,
+          guessCount: game.guessCount
+        });
+      }
+    }
+    
+    return patterns;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -318,6 +344,28 @@ export class DatabaseStorage implements IStorage {
         return b.totalGames - a.totalGames;
       })
       .slice(0, limit);
+  }
+
+  async getTodayTopPatterns(date: string): Promise<Array<{ username: string; guesses: string[]; guessCount: number; }>> {
+    // Get all completed won games for today with user info
+    const todayGames = await db
+      .select({
+        username: users.username,
+        guesses: gameStats.guesses,
+        guessCount: gameStats.guessCount,
+        userId: gameStats.userId
+      })
+      .from(gameStats)
+      .innerJoin(users, eq(gameStats.userId, users.id))
+      .where(and(eq(gameStats.date, date), eq(gameStats.completed, 'won')))
+      .orderBy(gameStats.guessCount)
+      .limit(3);
+    
+    return todayGames.map(game => ({
+      username: game.username,
+      guesses: game.guesses as string[],
+      guessCount: game.guessCount
+    }));
   }
 }
 

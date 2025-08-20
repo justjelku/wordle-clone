@@ -261,6 +261,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get today's top players' guess patterns
+  app.get("/api/today-top-patterns/:date", async (req, res) => {
+    try {
+      const { date } = req.params;
+      const patterns = await storage.getTodayTopPatterns(date);
+      res.json(patterns);
+    } catch (error) {
+      console.error('Error fetching today\'s patterns:', error);
+      res.status(500).json({ 
+        message: "Failed to fetch today's patterns. Please try again."
+      });
+    }
+  });
+
   // Generate new word manually (for development/testing)
   app.post("/api/generate-word", async (req, res) => {
     try {
