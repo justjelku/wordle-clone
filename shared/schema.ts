@@ -34,7 +34,11 @@ export type InsertGameStats = z.infer<typeof insertGameStatsSchema>;
 export type GameStats = typeof gameStats.$inferSelect;
 
 // Additional types for the game
-export const categories = ['Animals', 'Food', 'Technology', 'Nature', 'Emotions'] as const;
+export const categories = [
+  'Animals', 'Food', 'Technology', 'Nature', 'Emotions',
+  'Sports', 'Music', 'Travel', 'Science', 'Colors',
+  'Weather', 'Clothing', 'Transportation', 'Home', 'School'
+] as const;
 export type Category = typeof categories[number];
 
 export interface TileState {

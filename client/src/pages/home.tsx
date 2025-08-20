@@ -61,39 +61,39 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-inter flex flex-col" data-testid="game-container">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-inter flex flex-col" data-testid="game-container">
       <GameHeader 
         category={dailyWord?.category || ''} 
         currentGuess={gameState.currentRow + 1}
         isLoading={isLoadingWord}
       />
       
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-        <div className="w-full max-w-lg">
+      <main className="flex-1 flex flex-col items-center justify-center px-2 sm:px-4 py-4 sm:py-8">
+        <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
           {isLoadingWord ? (
-            <div className="space-y-8">
-              <div className="grid grid-cols-5 gap-2">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-3 max-w-xs sm:max-w-sm md:max-w-lg mx-auto">
                 {Array.from({ length: 25 }).map((_, i) => (
-                  <Skeleton key={i} className="aspect-square" />
+                  <Skeleton key={i} className="aspect-square rounded-md" />
                 ))}
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-center space-x-1">
+              <div className="space-y-1 sm:space-y-2 max-w-lg mx-auto">
+                <div className="flex justify-center gap-1 sm:gap-1.5">
                   {Array.from({ length: 10 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-8" />
+                    <Skeleton key={i} className="h-10 sm:h-12 w-6 sm:w-8 rounded" />
                   ))}
                 </div>
-                <div className="flex justify-center space-x-1">
+                <div className="flex justify-center gap-1 sm:gap-1.5">
                   {Array.from({ length: 9 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-8" />
+                    <Skeleton key={i} className="h-10 sm:h-12 w-6 sm:w-8 rounded" />
                   ))}
                 </div>
-                <div className="flex justify-center space-x-1">
-                  <Skeleton className="h-12 w-16" />
+                <div className="flex justify-center gap-1 sm:gap-1.5">
+                  <Skeleton className="h-10 sm:h-12 w-12 sm:w-16 rounded" />
                   {Array.from({ length: 7 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-8" />
+                    <Skeleton key={i} className="h-10 sm:h-12 w-6 sm:w-8 rounded" />
                   ))}
-                  <Skeleton className="h-12 w-12" />
+                  <Skeleton className="h-10 sm:h-12 w-10 sm:w-12 rounded" />
                 </div>
               </div>
             </div>
@@ -101,19 +101,19 @@ export default function Home() {
             <>
               <GameGrid tiles={tiles} />
               
-              <div className="text-center mb-6" data-testid="game-message">
+              <div className="text-center mb-4 sm:mb-6 px-2" data-testid="game-message">
                 {gameState.gameStatus === 'won' && (
-                  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4" data-testid="success-message">
+                  <div className="bg-green-100 border border-green-400 text-green-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 shadow-md" data-testid="success-message">
                     <strong>Congratulations!</strong> You found the word!
                   </div>
                 )}
                 {gameState.gameStatus === 'lost' && (
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" data-testid="game-over-message">
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 shadow-md" data-testid="game-over-message">
                     <strong>Game Over!</strong> The word was <strong>{dailyWord?.word}</strong>
                   </div>
                 )}
                 {gameState.gameStatus === 'playing' && (
-                  <div className="text-gray-600 text-sm" data-testid="hint-message">
+                  <div className="text-gray-600 text-sm sm:text-base" data-testid="hint-message">
                     Guess the 5-letter word related to today's category
                   </div>
                 )}
@@ -131,33 +131,35 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="bg-white border-t border-gray-200 px-4 py-4">
-        <div className="max-w-lg mx-auto flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-          <div className="flex items-center space-x-4 text-sm text-gray-600">
+      <footer className="bg-white/90 backdrop-blur-sm border-t border-gray-200 px-2 sm:px-4 py-3 sm:py-4">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+          <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-gray-600">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-600 hover:text-gray-900"
+              className="text-gray-600 hover:text-gray-900 px-2 sm:px-3"
               data-testid="button-rules"
             >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              How to Play
+              <span className="hidden sm:inline">How to Play</span>
+              <span className="sm:hidden">Rules</span>
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-600 hover:text-gray-900"
+              className="text-gray-600 hover:text-gray-900 px-2 sm:px-3"
               data-testid="button-stats"
             >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
               </svg>
-              Statistics
+              <span className="hidden sm:inline">Statistics</span>
+              <span className="sm:hidden">Stats</span>
             </Button>
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-xs sm:text-sm text-gray-500">
             Next word in: <span className="font-semibold" data-testid="next-word-timer">Loading...</span>
           </div>
         </div>

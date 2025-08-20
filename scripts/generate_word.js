@@ -21,7 +21,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const categories = ['Animals', 'Food', 'Technology', 'Nature', 'Emotions'];
+const categories = [
+  'Animals', 'Food', 'Technology', 'Nature', 'Emotions',
+  'Sports', 'Music', 'Travel', 'Science', 'Colors',
+  'Weather', 'Clothing', 'Transportation', 'Home', 'School'
+];
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const USED_WORDS_FILE = path.join(DATA_DIR, 'used_words.json');
 const TODAY_WORD_FILE = path.join(DATA_DIR, 'today_word.json');
