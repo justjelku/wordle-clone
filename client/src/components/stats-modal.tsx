@@ -37,7 +37,7 @@ export function StatsModal({ isOpen, onClose, currentUser }: StatsModalProps) {
     setIsLoading(true);
     try {
       // Fetch user stats
-      const statsResponse = await fetch(`/api/users/${currentUser.id}/stats`);
+      const statsResponse = await fetch(`/api/user-stats/${currentUser.id}`);
       if (statsResponse.ok) {
         const stats = await statsResponse.json();
         setUserStats(stats);
