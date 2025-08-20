@@ -219,7 +219,7 @@ export function UserSetupModal({ isOpen, onUserCreated }: UserSetupModalProps) {
           <TabsContent value="create" className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username-create">Username</Label>
-              <div className="flex gap-2">
+              <div className="space-y-2">
                 <Input
                   id="username-create"
                   placeholder="Enter your username"
@@ -237,11 +237,18 @@ export function UserSetupModal({ isOpen, onUserCreated }: UserSetupModalProps) {
                   onClick={generateUsername}
                   disabled={isCreating || isGenerating}
                   data-testid="button-generate-username"
+                  className="w-full"
                 >
                   {isGenerating ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      AI is generating...
+                    </>
                   ) : (
-                    <Sparkles className="h-4 w-4" />
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Click this to let AI generate username
+                    </>
                   )}
                 </Button>
               </div>
