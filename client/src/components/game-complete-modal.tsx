@@ -12,6 +12,16 @@ interface GameCompleteModalProps {
   onPlayAgain: () => void;
 }
 
+// Calculate percentage score based on guess count
+function calculateScore(guessCount: number): number {
+  if (guessCount === 1) return 100;
+  if (guessCount === 2) return 80;
+  if (guessCount === 3) return 60;
+  if (guessCount === 4) return 40;
+  if (guessCount === 5) return 20;
+  return 0;
+}
+
 export function GameCompleteModal({
   isOpen,
   gameStatus,
@@ -56,21 +66,42 @@ export function GameCompleteModal({
             <p className="text-gray-600" data-testid="modal-subtitle">
               {gameStatus === 'won' 
                 ? `You found today's word in ${guessCount} guess${guessCount !== 1 ? 'es' : ''}!`
-                : "You'll get it next time!"
+                : "Better luck next time tomorrow!"
               }
             </p>
+            {gameStatus === 'won' && (
+              <div className="mt-2">
+                <div className="text-3xl font-bold text-green-600" data-testid="score-percentage">
+                  {calculateScore(guessCount)}%
+                </div>
+                <div className="text-sm text-gray-500">Performance Score</div>
+              </div>
+            )}
           </div>
         </DialogHeader>
         
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg text-center">
-          <div className="text-sm text-gray-600 mb-1">Today's word was:</div>
-          <div className="text-2xl font-bold text-gray-900" data-testid="revealed-word">
-            {word}
+        {gameStatus === 'won' && (
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg text-center">
+            <div className="text-sm text-gray-600 mb-1">Today's word was:</div>
+            <div className="text-2xl font-bold text-gray-900" data-testid="revealed-word">
+              {word}
+            </div>
+            <div className="text-sm text-blue-600 mt-1" data-testid="word-category">
+              Category: {category}
+            </div>
           </div>
-          <div className="text-sm text-blue-600 mt-1" data-testid="word-category">
-            Category: {category}
+        )}
+        
+        {gameStatus === 'lost' && (
+          <div className="mb-6 p-4 bg-orange-50 rounded-lg text-center">
+            <div className="text-lg font-medium text-orange-800 mb-2">
+              Today's challenge was tough!
+            </div>
+            <div className="text-sm text-orange-600">
+              Come back tomorrow for a new word from the <strong>{category}</strong> category.
+            </div>
           </div>
-        </div>
+        )}
         
         <div className="flex space-x-3">
           <Button 

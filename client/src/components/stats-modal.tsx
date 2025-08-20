@@ -162,6 +162,13 @@ export function StatsModal({ isOpen, onClose, currentUser }: StatsModalProps) {
                             <Badge variant="secondary">{word.category}</Badge>
                           </div>
                           <div className="text-right text-sm text-muted-foreground">
+                            <div className="font-semibold text-green-600">
+                              {word.guessCount === 1 ? '100%' :
+                               word.guessCount === 2 ? '80%' :
+                               word.guessCount === 3 ? '60%' :
+                               word.guessCount === 4 ? '40%' :
+                               word.guessCount === 5 ? '20%' : '0%'}
+                            </div>
                             <div>{word.guessCount}/5 guesses</div>
                             <div>{new Date(word.date).toLocaleDateString()}</div>
                           </div>

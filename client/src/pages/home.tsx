@@ -47,9 +47,6 @@ export default function Home() {
 
   // Check for existing user on load
   useEffect(() => {
-    // Clear localStorage for testing - remove this in production
-    localStorage.removeItem('wordleUser');
-    
     const savedUser = localStorage.getItem('wordleUser');
     console.log('Checking for saved user:', savedUser);
     if (savedUser) {
@@ -72,6 +69,12 @@ export default function Home() {
     setCurrentUser(user);
     localStorage.setItem('wordleUser', JSON.stringify(user));
     setShowUserSetup(false);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('wordleUser');
+    setShowUserSetup(true);
   };
 
   if (wordError) {
@@ -103,6 +106,8 @@ export default function Home() {
         category={dailyWord?.category || ''} 
         currentGuess={gameState.currentRow + 1}
         isLoading={isLoadingWord}
+        currentUser={currentUser}
+        onLogout={handleLogout}
       />
       
       <main className="flex-1 flex flex-col items-center justify-center px-2 sm:px-4 py-4 sm:py-8">
