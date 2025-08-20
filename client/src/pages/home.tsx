@@ -14,7 +14,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { WordResponse } from "@shared/schema";
+import type { WordResponse, GameStats } from "@shared/schema";
+
+interface CompletionStatus {
+  completed: boolean;
+  game: GameStats | null;
+}
 
 export default function Home() {
   const { toast } = useToast();
@@ -38,8 +43,8 @@ export default function Home() {
   const { 
     data: completionStatus, 
     isLoading: isLoadingCompletion 
-  } = useQuery({
-    queryKey: ['/api/users', currentUser?.id, 'completed-today'],
+  } = useQuery<CompletionStatus>({
+    queryKey: ['/api/user-completion', currentUser?.id],
     enabled: !!currentUser?.id,
     retry: 1,
   });
