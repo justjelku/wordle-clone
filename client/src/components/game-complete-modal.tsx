@@ -61,7 +61,7 @@ export function GameCompleteModal({
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto" data-testid="game-complete-modal">
+      <DialogContent className="sm:max-w-md" data-testid="game-complete-modal">
         <DialogHeader className="text-center">
           <div className="mb-4">
             <div className="text-6xl mb-2">
@@ -110,20 +110,6 @@ export function GameCompleteModal({
           </div>
         )}
         
-        {/* Show guess patterns for completed games */}
-        {(gameStatus === 'won' || gameStatus === 'lost') && (
-          <div className="mb-6">
-            <GuessPatternsDisplay
-              targetWord={word}
-              date={today}
-              currentUserPattern={gameStatus === 'won' && currentUser && userGuesses.length > 0 ? {
-                username: currentUser.username,
-                guesses: userGuesses,
-                guessCount: guessCount
-              } : undefined}
-            />
-          </div>
-        )}
         
         <div className="flex space-x-3">
           <Button 

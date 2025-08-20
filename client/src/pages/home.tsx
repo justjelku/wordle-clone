@@ -6,6 +6,7 @@ import { GameCompleteModal } from "../components/game-complete-modal";
 import { UserSetupModal } from "../components/user-setup-modal";
 import { StatsModal } from "../components/stats-modal";
 import { RulesModal } from "../components/rules-modal";
+import { GuessPatternsDisplay } from "../components/guess-patterns-display";
 import { useGameState } from "../hooks/use-game-state";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +32,16 @@ export default function Home() {
     queryKey: ['/api/daily-word'],
     retry: 3,
     staleTime: 1000 * 60 * 60, // 1 hour
+  });
+
+  // Check if user has completed today's game
+  const { 
+    data: completionStatus, 
+    isLoading: isLoadingCompletion 
+  } = useQuery({
+    queryKey: ['/api/users', currentUser?.id, 'completed-today'],
+    enabled: !!currentUser?.id,
+    retry: 1,
   });
 
   const {
@@ -112,7 +123,7 @@ export default function Home() {
       
       <main className="flex-1 flex flex-col items-center justify-center px-2 sm:px-4 py-4 sm:py-8">
         <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
-          {isLoadingWord ? (
+          {isLoadingWord || isLoadingCompletion ? (
             <div className="space-y-6 sm:space-y-8">
               <div className="grid grid-cols-5 gap-1 sm:gap-2 md:gap-3 max-w-xs sm:max-w-sm md:max-w-lg mx-auto">
                 {Array.from({ length: 25 }).map((_, i) => (
@@ -138,6 +149,19 @@ export default function Home() {
                   <Skeleton className="h-10 sm:h-12 w-10 sm:w-12 rounded" />
                 </div>
               </div>
+            </div>
+          ) : completionStatus?.completed ? (
+            // Show guess patterns if user has completed today's game
+            <div className="max-w-2xl mx-auto">
+              <GuessPatternsDisplay
+                targetWord={dailyWord?.word || ''}
+                date={new Date().toISOString().split('T')[0]}
+                currentUserPattern={completionStatus.game ? {
+                  username: currentUser?.username || '',
+                  guesses: completionStatus.game.guesses,
+                  guessCount: completionStatus.game.guessCount
+                } : undefined}
+              />
             </div>
           ) : (
             <>

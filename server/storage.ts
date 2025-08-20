@@ -20,6 +20,7 @@ export interface IStorage {
   getUserStats(userId: string): Promise<UserStats>;
   getLeaderboard(limit?: number): Promise<LeaderboardEntry[]>;
   getTodayTopPatterns(date: string): Promise<Array<{ username: string; guesses: string[]; guessCount: number; }>>;
+  hasUserCompletedToday(userId: string, date: string): Promise<GameStats | null>;
 }
 
 export class MemStorage implements IStorage {
@@ -211,6 +212,14 @@ export class MemStorage implements IStorage {
     
     return patterns;
   }
+
+  async hasUserCompletedToday(userId: string, date: string): Promise<GameStats | null> {
+    return this.gameStats.find(game => 
+      game.userId === userId && 
+      game.date === date && 
+      (game.completed === 'won' || game.completed === 'lost')
+    ) || null;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -366,6 +375,20 @@ export class DatabaseStorage implements IStorage {
       guesses: game.guesses as string[],
       guessCount: game.guessCount
     }));
+  }
+
+  async hasUserCompletedToday(userId: string, date: string): Promise<GameStats | null> {
+    const [game] = await db
+      .select()
+      .from(gameStats)
+      .where(and(
+        eq(gameStats.userId, userId),
+        eq(gameStats.date, date),
+        // Check if completed (won or lost)
+      ))
+      .limit(1);
+    
+    return (game && (game.completed === 'won' || game.completed === 'lost')) ? game : null;
   }
 }
 

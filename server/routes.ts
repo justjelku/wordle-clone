@@ -275,6 +275,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check if user has completed today's game
+  app.get("/api/users/:userId/completed-today", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const today = new Date().toISOString().split('T')[0];
+      const completedGame = await storage.hasUserCompletedToday(userId, today);
+      res.json({ 
+        completed: !!completedGame,
+        game: completedGame 
+      });
+    } catch (error) {
+      console.error('Error checking if user completed today:', error);
+      res.status(500).json({ 
+        message: "Failed to check completion status. Please try again."
+      });
+    }
+  });
+
   // Generate new word manually (for development/testing)
   app.post("/api/generate-word", async (req, res) => {
     try {
