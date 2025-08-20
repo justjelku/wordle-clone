@@ -115,7 +115,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const isValid = validWords.has(upperWord);
+      // Check if word is in our base valid words list
+      let isValid = validWords.has(upperWord);
+      
+      // If not in base list, check if it's a previously generated AI word
+      if (!isValid) {
+        try {
+          const generatedWords = await loadUsedWords();
+          isValid = generatedWords.includes(upperWord);
+        } catch (error) {
+          console.log('Could not load generated words for validation');
+        }
+      }
       
       res.json({ 
         valid: isValid,

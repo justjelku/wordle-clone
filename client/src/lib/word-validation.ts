@@ -61,6 +61,8 @@ export function validateWord(word: string): boolean {
     return false;
   }
   
+  // Note: This is basic client-side validation
+  // Server-side validation includes AI-generated words
   return commonWords.has(word.toUpperCase());
 }
 
