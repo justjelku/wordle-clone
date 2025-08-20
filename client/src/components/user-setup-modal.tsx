@@ -232,12 +232,12 @@ export function UserSetupModal({ isOpen, onUserCreated }: UserSetupModalProps) {
                 />
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
                   onClick={generateUsername}
                   disabled={isCreating || isGenerating}
                   data-testid="button-generate-username"
-                  className="w-full"
+                  className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0"
                 >
                   {isGenerating ? (
                     <>
