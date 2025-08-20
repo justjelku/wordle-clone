@@ -136,3 +136,41 @@ export async function loadTodayWord(): Promise<WordResponse | null> {
     return null;
   }
 }
+
+export async function generateAIUsername(): Promise<string> {
+  try {
+    const prompt = `Generate a fun, creative username for a word puzzle game. The username should be:
+    - 3-12 characters long
+    - Appropriate for all ages
+    - Unique and memorable
+    - Can be word-related, nature-themed, or just fun
+    
+    Examples: WordWiz, PuzzlePro, BookWorm, SkyBlue, etc.
+    
+    Return just the username, nothing else.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+
+    const username = response.text?.trim();
+    if (!username) {
+      throw new Error('Empty response from Gemini');
+    }
+
+    // Clean up the username (remove quotes, spaces, etc.)
+    const cleanUsername = username.replace(/["'\s]/g, '').slice(0, 12);
+    
+    return cleanUsername;
+  } catch (error) {
+    console.error('Error generating username with Gemini:', error);
+    // Fallback to random username
+    const adjectives = ['Quick', 'Smart', 'Wise', 'Bold', 'Calm', 'Cool', 'Bright'];
+    const nouns = ['Wolf', 'Star', 'Bird', 'Fish', 'Cat', 'Bear', 'Fox'];
+    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+    const num = Math.floor(Math.random() * 100);
+    return `${adj}${noun}${num}`;
+  }
+}

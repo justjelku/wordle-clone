@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateDailyWord, loadUsedWords, saveDailyWord, loadTodayWord } from "./services/gemini";
-import { insertDailyWordSchema, insertGameStatsSchema } from "@shared/schema";
+import { insertDailyWordSchema, insertGameStatsSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
 
 // Word validation lists (common 5-letter words)
@@ -142,10 +142,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create user
+  app.post("/api/users", async (req, res) => {
+    try {
+      const validatedData = insertUserSchema.parse(req.body);
+      
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(validatedData.username);
+      if (existingUser) {
+        return res.status(400).json({ 
+          message: "Username already exists"
+        });
+      }
+      
+      const user = await storage.createUser(validatedData);
+      res.json(user);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid user data",
+          errors: error.errors
+        });
+      }
+      res.status(500).json({ 
+        message: "Failed to create user. Please try again."
+      });
+    }
+  });
+
+  // Get user by username
+  app.get("/api/users/:username", async (req, res) => {
+    try {
+      const { username } = req.params;
+      const user = await storage.getUserByUsername(username);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(user);
+    } catch (error) {
+      console.error('Error getting user:', error);
+      res.status(500).json({ 
+        message: "Failed to get user. Please try again."
+      });
+    }
+  });
+
+  // Generate AI username
+  app.post("/api/generate-username", async (req, res) => {
+    try {
+      const { generateAIUsername } = await import('./services/gemini');
+      const username = await generateAIUsername();
+      res.json({ username });
+    } catch (error) {
+      console.error('Error generating username:', error);
+      res.status(500).json({ 
+        message: "Failed to generate username. Please try again."
+      });
+    }
+  });
+
   // Submit game results
   app.post("/api/game-stats", async (req, res) => {
     try {
       const validatedData = insertGameStatsSchema.parse(req.body);
+      
+      // Get today's word to fill in the category if missing
+      if (!validatedData.category) {
+        const todayWord = await loadTodayWord();
+        if (todayWord) {
+          validatedData.category = todayWord.category;
+        }
+      }
+      
       const stats = await storage.createGameStats(validatedData);
       res.json(stats);
     } catch (error) {
@@ -158,6 +229,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.status(500).json({ 
         message: "Failed to save game stats. Please try again."
+      });
+    }
+  });
+
+  // Get user stats
+  app.get("/api/users/:userId/stats", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const stats = await storage.getUserStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error('Error getting user stats:', error);
+      res.status(500).json({ 
+        message: "Failed to get user stats. Please try again."
+      });
+    }
+  });
+
+  // Get leaderboard
+  app.get("/api/leaderboard", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      const leaderboard = await storage.getLeaderboard(limit);
+      res.json(leaderboard);
+    } catch (error) {
+      console.error('Error getting leaderboard:', error);
+      res.status(500).json({ 
+        message: "Failed to get leaderboard. Please try again."
       });
     }
   });

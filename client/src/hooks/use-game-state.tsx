@@ -8,7 +8,7 @@ interface KeyboardState {
   [key: string]: 'unused' | 'correct' | 'wrong-position' | 'wrong';
 }
 
-export function useGameState(targetWord: string, toast: any) {
+export function useGameState(targetWord: string, toast: any, currentUser?: { id: string; username: string } | null) {
   const [gameState, setGameState] = useState<GameState>({
     currentGuess: '',
     guesses: [],
@@ -31,6 +31,14 @@ export function useGameState(targetWord: string, toast: any) {
   const validateWordMutation = useMutation({
     mutationFn: async (word: string) => {
       const response = await apiRequest('POST', '/api/validate-word', { word });
+      return response.json();
+    },
+  });
+
+  const saveGameStatsMutation = useMutation({
+    mutationFn: async (gameData: any) => {
+      if (!currentUser) return;
+      const response = await apiRequest('POST', '/api/game-stats', gameData);
       return response.json();
     },
   });
@@ -161,6 +169,19 @@ export function useGameState(targetWord: string, toast: any) {
           description: `You found the word in ${newGuesses.length} guess${newGuesses.length !== 1 ? 'es' : ''}!`,
         });
         setGameComplete(true);
+        
+        // Save game stats
+        if (currentUser) {
+          saveGameStatsMutation.mutate({
+            userId: currentUser.id,
+            date: new Date().toISOString().split('T')[0],
+            word: targetWord,
+            category: '', // Will be filled by the server
+            guesses: newGuesses,
+            completed: 'won',
+            guessCount: newGuesses.length
+          });
+        }
       } else if (lost) {
         toast({
           title: "Game Over",
@@ -168,6 +189,19 @@ export function useGameState(targetWord: string, toast: any) {
           variant: "destructive",
         });
         setGameComplete(true);
+        
+        // Save game stats
+        if (currentUser) {
+          saveGameStatsMutation.mutate({
+            userId: currentUser.id,
+            date: new Date().toISOString().split('T')[0],
+            word: targetWord,
+            category: '', // Will be filled by the server
+            guesses: newGuesses,
+            completed: 'lost',
+            guessCount: newGuesses.length
+          });
+        }
       }
 
     } catch (error) {
@@ -177,7 +211,7 @@ export function useGameState(targetWord: string, toast: any) {
         variant: "destructive",
       });
     }
-  }, [gameState, targetWord, validateWordMutation, toast]);
+  }, [gameState, targetWord, validateWordMutation, saveGameStatsMutation, currentUser, toast]);
 
   const resetGame = useCallback(() => {
     setGameState({

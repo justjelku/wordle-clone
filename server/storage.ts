@@ -1,55 +1,186 @@
-import { type DailyWord, type InsertDailyWord, type GameStats, type InsertGameStats } from "@shared/schema";
+import type { InsertDailyWord, DailyWord, InsertGameStats, GameStats, InsertUser, User, UserStats, LeaderboardEntry } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
-  getDailyWord(date: string): Promise<DailyWord | undefined>;
-  createDailyWord(word: InsertDailyWord): Promise<DailyWord>;
-  getAllDailyWords(): Promise<DailyWord[]>;
-  getGameStats(date: string): Promise<GameStats | undefined>;
-  createGameStats(stats: InsertGameStats): Promise<GameStats>;
+  // Daily words
+  createDailyWord(data: InsertDailyWord): Promise<DailyWord>;
+  getDailyWordByDate(date: string): Promise<DailyWord | null>;
+  
+  // Users
+  createUser(data: InsertUser): Promise<User>;
+  getUserByUsername(username: string): Promise<User | null>;
+  getUserById(id: string): Promise<User | null>;
+  
+  // Game stats
+  createGameStats(data: InsertGameStats): Promise<GameStats>;
+  getGameStatsByDate(date: string): Promise<GameStats[]>;
+  getUserStats(userId: string): Promise<UserStats>;
+  getLeaderboard(limit?: number): Promise<LeaderboardEntry[]>;
 }
 
 export class MemStorage implements IStorage {
-  private dailyWords: Map<string, DailyWord>;
-  private gameStats: Map<string, GameStats>;
+  private dailyWords: DailyWord[] = [];
+  private users: User[] = [];
+  private gameStats: GameStats[] = [];
+  private nextId = 1;
 
-  constructor() {
-    this.dailyWords = new Map();
-    this.gameStats = new Map();
-  }
-
-  async getDailyWord(date: string): Promise<DailyWord | undefined> {
-    return this.dailyWords.get(date);
-  }
-
-  async createDailyWord(insertWord: InsertDailyWord): Promise<DailyWord> {
-    const id = randomUUID();
-    const word: DailyWord = { 
-      ...insertWord, 
-      id,
-      createdAt: new Date()
+  async createDailyWord(data: InsertDailyWord): Promise<DailyWord> {
+    const word: DailyWord = {
+      id: String(this.nextId++),
+      createdAt: new Date(),
+      ...data
     };
-    this.dailyWords.set(insertWord.date, word);
+    this.dailyWords.push(word);
     return word;
   }
 
-  async getAllDailyWords(): Promise<DailyWord[]> {
-    return Array.from(this.dailyWords.values());
+  async getDailyWordByDate(date: string): Promise<DailyWord | null> {
+    return this.dailyWords.find(word => word.date === date) || null;
   }
 
-  async getGameStats(date: string): Promise<GameStats | undefined> {
-    return this.gameStats.get(date);
-  }
-
-  async createGameStats(insertStats: InsertGameStats): Promise<GameStats> {
-    const id = randomUUID();
-    const stats: GameStats = { 
-      ...insertStats, 
-      id,
-      guesses: insertStats.guesses as string[]
+  async createUser(data: InsertUser): Promise<User> {
+    const user: User = {
+      id: String(this.nextId++),
+      createdAt: new Date(),
+      ...data
     };
-    this.gameStats.set(insertStats.date, stats);
-    return stats;
+    this.users.push(user);
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | null> {
+    return this.users.find(user => user.username === username) || null;
+  }
+
+  async getUserById(id: string): Promise<User | null> {
+    return this.users.find(user => user.id === id) || null;
+  }
+
+  async createGameStats(data: InsertGameStats): Promise<GameStats> {
+    const gameStats: GameStats = {
+      id: String(this.nextId++),
+      date: data.date,
+      word: data.word,
+      category: data.category,
+      userId: data.userId || null,
+      guesses: data.guesses as string[],
+      completed: data.completed,
+      guessCount: data.guessCount,
+      completedAt: new Date()
+    };
+    this.gameStats.push(gameStats);
+    return gameStats;
+  }
+
+  async getGameStatsByDate(date: string): Promise<GameStats[]> {
+    return this.gameStats.filter(stats => stats.date === date);
+  }
+
+  async getUserStats(userId: string): Promise<UserStats> {
+    const userGames = this.gameStats.filter(stats => stats.userId === userId);
+    const user = await this.getUserById(userId);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const gamesWon = userGames.filter(game => game.completed === 'won');
+    const totalGames = userGames.length;
+    const averageGuesses = gamesWon.length > 0 ? 
+      gamesWon.reduce((sum, game) => sum + game.guessCount, 0) / gamesWon.length : 0;
+    const bestGuess = gamesWon.length > 0 ? 
+      Math.min(...gamesWon.map(game => game.guessCount)) : 0;
+
+    // Calculate streaks
+    const sortedGames = userGames.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    let currentStreak = 0;
+    let maxStreak = 0;
+    let tempStreak = 0;
+
+    for (const game of sortedGames) {
+      if (game.completed === 'won') {
+        tempStreak++;
+        maxStreak = Math.max(maxStreak, tempStreak);
+      } else {
+        tempStreak = 0;
+      }
+    }
+
+    // Current streak from the end
+    for (let i = sortedGames.length - 1; i >= 0; i--) {
+      if (sortedGames[i].completed === 'won') {
+        currentStreak++;
+      } else {
+        break;
+      }
+    }
+
+    const foundWords = gamesWon.map(game => ({
+      word: game.word,
+      category: game.category,
+      date: game.date,
+      guessCount: game.guessCount
+    }));
+
+    return {
+      username: user.username,
+      totalGames,
+      gamesWon: gamesWon.length,
+      averageGuesses: Math.round(averageGuesses * 10) / 10,
+      bestGuess,
+      currentStreak,
+      maxStreak,
+      foundWords
+    };
+  }
+
+  async getLeaderboard(limit = 10): Promise<LeaderboardEntry[]> {
+    const userStatsMap = new Map<string, any>();
+    
+    // Group games by user
+    for (const game of this.gameStats) {
+      if (!game.userId) continue;
+      
+      if (!userStatsMap.has(game.userId)) {
+        const user = await this.getUserById(game.userId);
+        if (!user) continue;
+        
+        userStatsMap.set(game.userId, {
+          username: user.username,
+          totalGames: 0,
+          gamesWon: 0,
+          totalGuesses: 0,
+          currentStreak: 0
+        });
+      }
+      
+      const stats = userStatsMap.get(game.userId);
+      stats.totalGames++;
+      if (game.completed === 'won') {
+        stats.gamesWon++;
+        stats.totalGuesses += game.guessCount;
+      }
+    }
+    
+    // Calculate stats and sort
+    const leaderboard: LeaderboardEntry[] = Array.from(userStatsMap.values())
+      .map(stats => ({
+        username: stats.username,
+        totalGames: stats.totalGames,
+        gamesWon: stats.gamesWon,
+        winRate: stats.totalGames > 0 ? Math.round((stats.gamesWon / stats.totalGames) * 100) : 0,
+        averageGuesses: stats.gamesWon > 0 ? Math.round((stats.totalGuesses / stats.gamesWon) * 10) / 10 : 0,
+        currentStreak: stats.currentStreak
+      }))
+      .sort((a, b) => {
+        // Sort by win rate first, then by average guesses (lower is better)
+        if (b.winRate !== a.winRate) return b.winRate - a.winRate;
+        if (a.averageGuesses !== b.averageGuesses) return a.averageGuesses - b.averageGuesses;
+        return b.totalGames - a.totalGames;
+      })
+      .slice(0, limit);
+    
+    return leaderboard;
   }
 }
 

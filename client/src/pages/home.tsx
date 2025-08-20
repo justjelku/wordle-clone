@@ -1,7 +1,11 @@
+import { useState, useEffect } from "react";
 import { GameHeader } from "../components/game-header";
 import { GameGrid } from "../components/game-grid";
 import { VirtualKeyboard } from "../components/virtual-keyboard";
 import { GameCompleteModal } from "../components/game-complete-modal";
+import { UserSetupModal } from "../components/user-setup-modal";
+import { StatsModal } from "../components/stats-modal";
+import { RulesModal } from "../components/rules-modal";
 import { useGameState } from "../hooks/use-game-state";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +17,10 @@ import type { WordResponse } from "@shared/schema";
 
 export default function Home() {
   const { toast } = useToast();
+  const [currentUser, setCurrentUser] = useState<{ id: string; username: string } | null>(null);
+  const [showUserSetup, setShowUserSetup] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [showRules, setShowRules] = useState(false);
 
   const { 
     data: dailyWord, 
@@ -35,7 +43,29 @@ export default function Home() {
     handleBackspace,
     resetGame,
     closeModal
-  } = useGameState(dailyWord?.word || '', toast);
+  } = useGameState(dailyWord?.word || '', toast, currentUser);
+
+  // Check for existing user on load
+  useEffect(() => {
+    const savedUser = localStorage.getItem('wordleUser');
+    if (savedUser) {
+      try {
+        const user = JSON.parse(savedUser);
+        setCurrentUser(user);
+      } catch (error) {
+        localStorage.removeItem('wordleUser');
+        setShowUserSetup(true);
+      }
+    } else {
+      setShowUserSetup(true);
+    }
+  }, []);
+
+  const handleUserCreated = (user: { id: string; username: string }) => {
+    setCurrentUser(user);
+    localStorage.setItem('wordleUser', JSON.stringify(user));
+    setShowUserSetup(false);
+  };
 
   if (wordError) {
     return (
@@ -138,6 +168,7 @@ export default function Home() {
               variant="ghost" 
               size="sm" 
               className="text-gray-600 hover:text-gray-900 px-2 sm:px-3"
+              onClick={() => setShowRules(true)}
               data-testid="button-rules"
             >
               <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,6 +181,7 @@ export default function Home() {
               variant="ghost" 
               size="sm" 
               className="text-gray-600 hover:text-gray-900 px-2 sm:px-3"
+              onClick={() => setShowStats(true)}
               data-testid="button-stats"
             >
               <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,6 +208,22 @@ export default function Home() {
           onPlayAgain={resetGame}
         />
       )}
+      
+      <UserSetupModal
+        isOpen={showUserSetup}
+        onUserCreated={handleUserCreated}
+      />
+      
+      <StatsModal
+        isOpen={showStats}
+        onClose={() => setShowStats(false)}
+        currentUser={currentUser}
+      />
+      
+      <RulesModal
+        isOpen={showRules}
+        onClose={() => setShowRules(false)}
+      />
     </div>
   );
 }
