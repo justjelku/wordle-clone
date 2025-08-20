@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { generateDailyWord, loadUsedWords, saveDailyWord } from '../server/services/gemini';
+import { generateDailyWord, loadUsedWords, saveDailyWord } from '../server/services/gemini-vercel';
 import { storage } from '../server/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

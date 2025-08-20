@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { insertGameStatsSchema } from '../shared/schema';
 import { storage } from '../server/storage';
-import { loadTodayWord } from '../server/services/gemini';
+import { loadTodayWord } from '../server/services/gemini-vercel';
 import { z } from 'zod';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
