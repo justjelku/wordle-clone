@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { generateAIUsername } from '../server/services/gemini';
+import { generateAIUsername } from '../server/services/gemini-vercel';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

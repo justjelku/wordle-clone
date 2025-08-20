@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { loadUsedWords } from '../server/services/gemini';
+import { loadUsedWords } from '../server/services/gemini-vercel';
 
 // Word validation lists (common 5-letter words)
 const validWords = new Set([

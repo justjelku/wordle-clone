@@ -12,7 +12,8 @@
   ],
   "functions": {
     "api/**/*.ts": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs20.x",
+      "maxDuration": 10
     }
   },
   "routes": [
@@ -27,5 +28,6 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "buildCommand": "vite build"
 }
