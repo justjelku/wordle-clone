@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "../components/ui/button";
+import { cn } from "../lib/utils";
 import { Delete } from "lucide-react";
 
 interface KeyboardState {
@@ -29,7 +29,12 @@ export function VirtualKeyboard({
 }: VirtualKeyboardProps) {
   
   const getKeyClasses = (key: string) => {
-    const baseClasses = "font-semibold py-3 px-3 rounded text-sm min-w-[2.5rem] transition-colors";
+    const baseClasses = "font-semibold rounded transition-colors select-none touch-manipulation " +
+      "text-xs sm:text-sm md:text-base " +
+      "py-2 px-1 sm:py-3 sm:px-2 md:py-3 md:px-3 " +
+      "min-w-[1.75rem] sm:min-w-[2rem] md:min-w-[2.5rem] " +
+      "h-10 sm:h-12 md:h-12 " +
+      "flex items-center justify-center";
     
     if (disabled) {
       return cn(baseClasses, "bg-gray-200 text-gray-400 cursor-not-allowed");
@@ -37,30 +42,37 @@ export function VirtualKeyboard({
     
     switch (keyboardState[key]) {
       case 'correct':
-        return cn(baseClasses, "bg-green-500 text-white");
+        return cn(baseClasses, "bg-green-500 text-white active:bg-green-600");
       case 'wrong-position':
-        return cn(baseClasses, "bg-yellow-500 text-white");
+        return cn(baseClasses, "bg-yellow-500 text-white active:bg-yellow-600");
       case 'wrong':
-        return cn(baseClasses, "bg-gray-500 text-white");
+        return cn(baseClasses, "bg-gray-500 text-white active:bg-gray-600");
       default:
-        return cn(baseClasses, "bg-gray-200 hover:bg-gray-300 text-gray-900");
+        return cn(baseClasses, "bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-900");
     }
   };
 
-  const getActionKeyClasses = () => {
-    const baseClasses = "font-semibold py-3 px-4 rounded text-sm transition-colors";
+  const getActionKeyClasses = (isEnter = false) => {
+    const baseClasses = "font-semibold rounded transition-colors select-none touch-manipulation " +
+      "text-xs sm:text-sm md:text-base " +
+      "py-2 sm:py-3 md:py-3 " +
+      "h-10 sm:h-12 md:h-12 " +
+      "flex items-center justify-center " +
+      (isEnter 
+        ? "px-2 sm:px-3 md:px-4 min-w-[3rem] sm:min-w-[4rem] md:min-w-[5rem]" 
+        : "px-2 sm:px-3 md:px-4 min-w-[2.5rem] sm:min-w-[3rem] md:min-w-[3.5rem]");
     
     if (disabled) {
       return cn(baseClasses, "bg-gray-300 text-gray-400 cursor-not-allowed");
     }
     
-    return cn(baseClasses, "bg-gray-400 hover:bg-gray-500 text-white");
+    return cn(baseClasses, "bg-gray-400 hover:bg-gray-500 active:bg-gray-600 text-white");
   };
 
   return (
-    <div className="space-y-2" data-testid="virtual-keyboard">
+    <div className="space-y-1 sm:space-y-2 w-full max-w-lg mx-auto" data-testid="virtual-keyboard">
       {/* First row */}
-      <div className="flex justify-center space-x-1">
+      <div className="flex justify-center gap-1 sm:gap-1.5 px-2">
         {keyboardRows[0].map(key => (
           <Button
             key={key}
@@ -76,7 +88,8 @@ export function VirtualKeyboard({
       </div>
       
       {/* Second row */}
-      <div className="flex justify-center space-x-1">
+      <div className="flex justify-center gap-1 sm:gap-1.5 px-2">
+        <div className="w-4 sm:w-6 flex-shrink-0" /> {/* Spacer for centering */}
         {keyboardRows[1].map(key => (
           <Button
             key={key}
@@ -89,17 +102,19 @@ export function VirtualKeyboard({
             {key}
           </Button>
         ))}
+        <div className="w-4 sm:w-6 flex-shrink-0" /> {/* Spacer for centering */}
       </div>
       
       {/* Third row */}
-      <div className="flex justify-center space-x-1">
+      <div className="flex justify-center gap-1 sm:gap-1.5 px-2">
         <Button
-          className={getActionKeyClasses()}
+          className={getActionKeyClasses(true)}
           onClick={onEnter}
           disabled={disabled}
           data-testid="key-enter"
         >
-          ENTER
+          <span className="hidden sm:inline">ENTER</span>
+          <span className="sm:hidden">ENT</span>
         </Button>
         
         {keyboardRows[2].map(key => (
@@ -116,12 +131,12 @@ export function VirtualKeyboard({
         ))}
         
         <Button
-          className={getActionKeyClasses()}
+          className={getActionKeyClasses(false)}
           onClick={onBackspace}
           disabled={disabled}
           data-testid="key-backspace"
         >
-          <Delete className="w-4 h-4" />
+          <Delete className="w-3 h-3 sm:w-4 sm:h-4" />
         </Button>
       </div>
     </div>
