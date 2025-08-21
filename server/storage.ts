@@ -1,4 +1,4 @@
-import type { InsertDailyWord, DailyWord, InsertGameStats, GameStats, InsertUser, User, UserStats, LeaderboardEntry } from "@shared/schema";
+import type { InsertDailyWord, DailyWord, InsertGameStats, GameStats, InsertUser, User, UserStats, LeaderboardEntry } from "api/lib/schema";
 import { dailyWords, users, gameStats } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
