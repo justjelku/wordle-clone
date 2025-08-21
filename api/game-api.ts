@@ -46,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // POST /api/game-api?action=submit-stats - Submit game stats
     if (method === 'POST' && query.action === 'submit-stats') {
       const gameResult = req.body;
-      await storage.createGameResult(gameResult);
+      await storage.createGameStats(gameResult);
       return res.json({ success: true });
     }
     
