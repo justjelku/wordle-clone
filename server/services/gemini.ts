@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { categories, type Category, type WordResponse } from "@shared/schema";
+import { categories, type Category, type WordResponse } from "api/lib/schema";
 import * as fs from "fs";
 import * as path from "path";
 
