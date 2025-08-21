@@ -1,4 +1,4 @@
-import type { TileState } from "@shared/schema";
+import type { TileState } from "api/lib/schema";
 import { cn } from "../lib/utils";
 
 interface GameGridProps {
