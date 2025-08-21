@@ -13,7 +13,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // GET /api/user-data?userId=123&action=stats - Get user stats
     if (method === 'GET' && action === 'stats') {
-      const stats = await storage.getUserStats(parseInt(userId));
+      const stats = await storage.getUserStats(userId);
       return res.json(stats);
     }
 
