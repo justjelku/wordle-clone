@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { Badge } from '../components/ui/badge';
 import { Separator } from '../components/ui/separator';
 import { BarChart3, Trophy, Target, Clock, Star, TrendingUp, User } from 'lucide-react';
-import type { UserStats, LeaderboardEntry } from '@shared/schema';
+import type { UserStats, LeaderboardEntry } from 'api/lib/schema';
 
 interface StatsModalProps {
   isOpen: boolean;
