@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateDailyWord, loadUsedWords, saveDailyWord, loadTodayWord } from "./services/gemini";
-import { insertDailyWordSchema, insertGameStatsSchema, insertUserSchema } from "@shared/schema";
+import { insertDailyWordSchema, insertGameStatsSchema, insertUserSchema } from "api/lib/schema";
 import { z } from "zod";
 
 // Word validation lists (common 5-letter words)
