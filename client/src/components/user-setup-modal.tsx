@@ -9,8 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Loader2, Sparkles, User, LogIn, UserPlus } from 'lucide-react';
+import { Loader2, Sparkles, User } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 
 interface UserSetupModalProps {
@@ -22,8 +21,6 @@ export function UserSetupModal({ isOpen, onUserCreated }: UserSetupModalProps) {
   const [username, setUsername] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [mode, setMode] = useState<'login' | 'create'>('login');
   const { toast } = useToast();
 
   const generateUsername = async () => {
@@ -47,45 +44,6 @@ export function UserSetupModal({ isOpen, onUserCreated }: UserSetupModalProps) {
       });
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const loginUser = async () => {
-    if (!username.trim()) {
-      toast({
-        title: "Username Required",
-        description: "Please enter your username to login.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoggingIn(true);
-    try {
-      const response = await fetch(`/api/users/${encodeURIComponent(username.trim())}`);
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error('Username not found. Please check your username or create a new account.');
-        }
-        throw new Error('Failed to login. Please try again.');
-      }
-
-      const user = await response.json();
-      onUserCreated(user);
-      
-      toast({
-        title: "Welcome back!",
-        description: `Successfully logged in as ${user.username}.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Login Failed",
-        description: error instanceof Error ? error.message : "Could not login. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 
@@ -142,18 +100,9 @@ export function UserSetupModal({ isOpen, onUserCreated }: UserSetupModalProps) {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !isCreating && !isGenerating && !isLoggingIn) {
-      if (mode === 'login') {
-        loginUser();
-      } else {
-        createUser();
-      }
+    if (e.key === 'Enter' && !isCreating && !isGenerating) {
+      createUser();
     }
-  };
-
-  const handleTabChange = (value: string) => {
-    setMode(value as 'login' | 'create');
-    setUsername('');
   };
 
   return (
@@ -165,118 +114,60 @@ export function UserSetupModal({ isOpen, onUserCreated }: UserSetupModalProps) {
             Welcome to Wordle!
           </DialogTitle>
           <DialogDescription>
-            Login to your existing account or create a new one to track your stats.
+            Choose a username to track your stats and compete on the leaderboard.
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs value={mode} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login" className="flex items-center gap-2" data-testid="tab-login">
-              <LogIn className="h-4 w-4" />
-              Login
-            </TabsTrigger>
-            <TabsTrigger value="create" className="flex items-center gap-2" data-testid="tab-create">
-              <UserPlus className="h-4 w-4" />
-              Create Account
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="login" className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username-login">Username</Label>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="username">Username</Label>
+            <div className="flex gap-2">
               <Input
-                id="username-login"
-                placeholder="Enter your existing username"
+                id="username"
+                placeholder="Enter your username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyPress={handleKeyPress}
                 maxLength={12}
-                data-testid="input-username-login"
-                disabled={isLoggingIn}
+                data-testid="input-username"
+                disabled={isCreating || isGenerating}
               />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={generateUsername}
+                disabled={isCreating || isGenerating}
+                data-testid="button-generate-username"
+              >
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+              </Button>
             </div>
-            
-            <Button
-              onClick={loginUser}
-              disabled={isLoggingIn || !username.trim()}
-              className="w-full"
-              data-testid="button-login"
-            >
-              {isLoggingIn ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Logging in...
-                </>
-              ) : (
-                <>
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Login
-                </>
-              )}
-            </Button>
-          </TabsContent>
+            <p className="text-xs text-muted-foreground">
+              3-12 characters, letters and numbers only
+            </p>
+          </div>
           
-          <TabsContent value="create" className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username-create">Username</Label>
-              <div className="space-y-2">
-                <Input
-                  id="username-create"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  maxLength={12}
-                  data-testid="input-username-create"
-                  disabled={isCreating || isGenerating}
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={generateUsername}
-                  disabled={isCreating || isGenerating}
-                  data-testid="button-generate-username"
-                  className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      AI is generating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Click this to let AI generate username
-                    </>
-                  )}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                3-12 characters, letters and numbers only
-              </p>
-            </div>
-            
-            <Button
-              onClick={createUser}
-              disabled={isCreating || isGenerating || !username.trim()}
-              className="w-full"
-              data-testid="button-create-user"
-            >
-              {isCreating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Create Account
-                </>
-              )}
-            </Button>
-          </TabsContent>
-        </Tabs>
+          <Button
+            onClick={createUser}
+            disabled={isCreating || isGenerating || !username.trim()}
+            className="w-full"
+            data-testid="button-create-user"
+          >
+            {isCreating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              'Start Playing'
+            )}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

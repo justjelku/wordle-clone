@@ -26,13 +26,7 @@ jobs:
     - name: Generate new daily word
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      run: |
-        if [ -z "$GEMINI_API_KEY" ]; then
-          echo "❌ GEMINI_API_KEY is not set in GitHub Secrets"
-          exit 1
-        fi
-        echo "🤖 Generating daily word with Gemini AI..."
-        node scripts/generate_word.js
+      run: node scripts/generate_word.js
       
     - name: Commit and push changes
       run: |

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateDailyWord, loadUsedWords, saveDailyWord, loadTodayWord } from "./services/gemini";
-import { insertDailyWordSchema, insertGameStatsSchema, insertUserSchema } from "../api/lib/schema";
+import { insertDailyWordSchema, insertGameStatsSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
 
 // Word validation lists (common 5-letter words)
@@ -257,38 +257,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error getting leaderboard:', error);
       res.status(500).json({ 
         message: "Failed to get leaderboard. Please try again."
-      });
-    }
-  });
-
-  // Get today's top players' guess patterns
-  app.get("/api/today-top-patterns/:date", async (req, res) => {
-    try {
-      const { date } = req.params;
-      const patterns = await storage.getTodayTopPatterns(date);
-      res.json(patterns);
-    } catch (error) {
-      console.error('Error fetching today\'s patterns:', error);
-      res.status(500).json({ 
-        message: "Failed to fetch today's patterns. Please try again."
-      });
-    }
-  });
-
-  // Check if user has completed today's game
-  app.get("/api/users/:userId/completed-today", async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const today = new Date().toISOString().split('T')[0];
-      const completedGame = await storage.hasUserCompletedToday(userId, today);
-      res.json({ 
-        completed: !!completedGame,
-        game: completedGame 
-      });
-    } catch (error) {
-      console.error('Error checking if user completed today:', error);
-      res.status(500).json({ 
-        message: "Failed to check completion status. Please try again."
       });
     }
   });
