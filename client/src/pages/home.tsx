@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { WordResponse, GameStats } from "@shared/schema";
+import type { WordResponse, GameStats } from "api/lib/schema";
 
 interface CompletionStatus {
   completed: boolean;
