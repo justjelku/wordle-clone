@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
-import { categories, type Category, type WordResponse } from "@shared/schema";
-import { storage } from "../storage";
+import { categories, type Category, type WordResponse } from "./schema";
+import { storage } from "./storage";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
@@ -96,7 +96,7 @@ export async function saveDailyWord(wordData: WordResponse): Promise<void> {
     await storage.createDailyWord({
       date: wordData.date,
       word: wordData.word,
-      category: wordData.category
+      category: wordData.category,
     });
   } catch (error) {
     console.error("Error saving daily word:", error);
@@ -106,17 +106,17 @@ export async function saveDailyWord(wordData: WordResponse): Promise<void> {
 
 export async function loadTodayWord(): Promise<WordResponse | null> {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     const todayWord = await storage.getDailyWordByDate(today);
-    
+
     if (!todayWord) {
       return null;
     }
-    
+
     return {
       date: todayWord.date,
       word: todayWord.word,
-      category: todayWord.category as Category
+      category: todayWord.category as Category,
     };
   } catch (error) {
     console.error("Error loading today word:", error);

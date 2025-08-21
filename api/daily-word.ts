@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { generateDailyWord, loadUsedWords, saveDailyWord, loadTodayWord } from '../server/services/gemini-vercel';
-import { storage } from '../server/storage';
+import { generateDailyWord, loadUsedWords, saveDailyWord, loadTodayWord } from './lib/gemini-vercel';
+import { storage } from './lib/storage';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
