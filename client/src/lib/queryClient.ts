@@ -23,6 +23,20 @@ export async function apiRequest(
   return res;
 }
 
+// Helper functions for new consolidated endpoints
+export const API_ENDPOINTS = {
+  getDailyWord: () => '/api/game-api?action=daily-word',
+  generateWord: () => '/api/game-api?action=generate-word',
+  submitStats: () => '/api/game-api?action=submit-stats',
+  getLeaderboard: (limit = 10) => `/api/game-api?action=leaderboard&limit=${limit}`,
+  getTopPatterns: (date: string) => `/api/game-api?action=top-patterns&date=${date}`,
+  createUser: () => '/api/users-api',
+  getUser: (username: string) => `/api/users-api?username=${username}`,
+  generateUsername: () => '/api/users-api?action=generate-username',
+  getUserStats: (userId: number) => `/api/user-data?userId=${userId}&action=stats`,
+  checkCompletion: (userId: number) => `/api/user-data?userId=${userId}&action=completion`,
+};
+
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
