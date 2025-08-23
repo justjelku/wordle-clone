@@ -1,0 +1,15 @@
+# Exclude Express server files from Vercel deployment
+server/index.ts
+server/vite.ts
+server/routes.ts
+
+# Exclude development files
+.env.local
+.env.development
+.replit
+replit.nix
+
+# Exclude build artifacts
+dist/
+.cache/
+node_modules/
