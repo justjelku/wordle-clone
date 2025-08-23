@@ -1,5 +1,5 @@
 
-import { NextApiRequest, NextApiResponse } from 'next';
+import { Request, Response } from 'express';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { dailyWords } from '../shared/schema';
@@ -9,7 +9,7 @@ import { generateDailyWord, loadUsedWords, saveDailyWord, loadTodayWord } from '
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: Request, res: Response) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
