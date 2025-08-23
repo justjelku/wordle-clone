@@ -1,5 +1,5 @@
 
-import { Request, Response } from 'express';
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { users, insertUserSchema } from '../shared/schema';
@@ -8,7 +8,7 @@ import { z } from 'zod';
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
 
-export default async function handler(req: Request, res: Response) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'POST') {
     try {
       const validatedData = insertUserSchema.parse(req.body);
