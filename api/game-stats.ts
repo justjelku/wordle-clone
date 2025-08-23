@@ -25,7 +25,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
     
-    const stats = await db.insert(gameStats).values(validatedData).returning();
+    // Ensure guesses is properly formatted as string array
+    const gameData = {
+      ...validatedData,
+      guesses: Array.isArray(validatedData.guesses) ? validatedData.guesses : []
+    };
+    
+    const stats = await db.insert(gameStats).values(gameData).returning();
     res.json(stats[0]);
   } catch (error) {
     console.error('Error saving game stats:', error);

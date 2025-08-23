@@ -11,7 +11,7 @@ const db = drizzle(sql);
 
 export async function generateDailyWord(usedWords: string[] = []): Promise<WordResponse> {
   try {
-    const model = ai.models.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const category = categories[Math.floor(Math.random() * categories.length)];
     const usedWordsStr = usedWords.length > 0 ? usedWords.join(', ') : 'none';
@@ -52,7 +52,7 @@ export async function generateDailyWord(usedWords: string[] = []): Promise<WordR
 
 export async function generateAIUsername(): Promise<string> {
   try {
-    const model = ai.models.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `Generate a creative, unique username for a word game player. 
     The username should be:
