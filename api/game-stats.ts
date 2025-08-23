@@ -28,7 +28,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Ensure guesses is properly formatted as string array
     const gameData = {
       ...validatedData,
-      guesses: Array.isArray(validatedData.guesses) ? validatedData.guesses : []
+      guesses: Array.isArray(validatedData.guesses) 
+        ? validatedData.guesses.filter((guess): guess is string => typeof guess === 'string')
+        : []
     };
     
     const stats = await db.insert(gameStats).values(gameData).returning();
