@@ -2,7 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
-import { users } from '../../shared/schema';
+import { users } from '../../../shared/schema';
 import { eq } from 'drizzle-orm';
 
 const sql = neon(process.env.DATABASE_URL!);
